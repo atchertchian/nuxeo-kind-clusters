@@ -1,3 +1,8 @@
+
+This repository is a (temporary) fork of [nuxeo-helm-chart](https://github.com/nuxeo/nuxeo-helm-chart)
+
+The actual readme is [nuxeo-clusters-in-kind.md](nuxeo-clusters-in-kind.md)
+
 # Nuxeo Helm Chart
 
 This chart aims to deploy the Nuxeo Platform in a development or staging environment, such as preview in Kubernetes.

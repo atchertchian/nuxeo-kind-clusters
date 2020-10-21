@@ -70,17 +70,17 @@ Check that the image in now in the registry:
 
     helm dependency update nuxeo
 
-helm install \
- -f nuxeo/values-tiry.yaml \
- --name nuxeo-cluster \
- --debug \
- --set nuxeo.packages=nuxeo-web-ui \
- --set tags.mongodb=true \
- --set tags.elasticsearch=true \
- --set tags.kafka=true \
- --set nuxeo.ingress.enabled=true \
- --set nuxeo.clid='XXX' \
-  nuxeo
+	helm install \
+	 -f nuxeo/values-tiry.yaml \
+	 --name nuxeo-cluster \
+	 --debug \
+	 --set nuxeo.packages=nuxeo-web-ui \
+	 --set tags.mongodb=true \
+	 --set tags.elasticsearch=true \
+	 --set tags.kafka=true \
+	 --set nuxeo.ingress.enabled=true \
+	 --set nuxeo.clid='XXX' \
+	  nuxeo
 
 
 ## Testing the cluster
@@ -93,80 +93,76 @@ There are 3 deployed nuxeo:
  - app2.localhost/nuxeo
  - localhost/nuxeo
  
-
-
 ### Checking ES indices
 
 Enter one of the Nuxeo containers
 
- > kubectl get pods | grep nuxeo-app1
+    kubectl get pods | grep nuxeo-app1
 
- > kubectl exec -ti nuxeo-cluster-nuxeo-app1-6cdccc8c95-8bckv -- /bin/bash
+    kubectl exec -ti nuxeo-cluster-nuxeo-app1-6cdccc8c95-8bckv -- /bin/bash
 
- > wget -O  - http://nuxeo-cluster-elasticsearch-client:9200/_cat/indices
-
+    wget -O  - http://nuxeo-cluster-elasticsearch-client:9200/_cat/indices
 
 
 ### Checking Mongo Databases
 
- > kubectl get pods | grep mongodb
+    kubectl get pods | grep mongodb
 
- > kubectl exec -ti nuxeo-cluster-mongodb-df547c46-t6vpm -- /bin/bash
+    kubectl exec -ti nuxeo-cluster-mongodb-df547c46-t6vpm -- /bin/bash
 
- > mongo
+Start Mongo CLI
+
+    mongo
 
 Listing databases
 
- > db.adminCommand( { listDatabases: 1 } )
+    db.adminCommand( { listDatabases: 1 } )
 
 
 Listing collections
 
- > use app1
- > db.runCommand( { listCollections: 1, nameOnly: true } )
+    use app1
+    db.runCommand( { listCollections: 1, nameOnly: true } )
 
 ### Checking Kafka
 
- > kubectl get pods | grep mongodb
+    kubectl get pods | grep mongodb
 
- > kubectl exec -ti nuxeo-cluster-kafka-0 -- /bin/bash
+    kubectl exec -ti nuxeo-cluster-kafka-0 -- /bin/bash
 
 List Kafka topics:
 
-
- > kafka-topics --list --zookeeper nuxeo-cluster-zookeeper
-
+    kafka-topics --list --zookeeper nuxeo-cluster-zookeeper
 
 
 ## Install Kubernetes Dashboards
 
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+*Not tested recently!!!*
 
-helm install dashboard kubernetes-dashboard/kubernetes-dashboard -n kubernetes-dashboard --create-namespace
+    helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+    helm install dashboard kubernetes-dashboard/kubernetes-dashboard -n kubernetes-dashboard --create-namespace
+    helm install  kubernetes-dashboard/kubernetes-dashboard -n kubernetes-dashboard
 
-helm install  kubernetes-dashboard/kubernetes-dashboard -n kubernetes-dashboard
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
-
-
-cat <<EOF | kubectl apply -f -
-kind: Service
-apiVersion: v1
-metadata:	
-  labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard-nodeport
-  namespace: kubernetes-dashboard
-spec:
-  type: NodePort
-  ports:
-    - port: 443
-      targetPort: 8443
-      nodePort: 30080
-  selector:
-    k8s-app: kubernetes-dashboard
-EOF
+	cat <<EOF | kubectl apply -f -
+	kind: Service
+	apiVersion: v1
+	metadata:	
+	  labels:
+	    k8s-app: kubernetes-dashboard
+	  name: kubernetes-dashboard-nodeport
+	  namespace: kubernetes-dashboard
+	spec:
+	  type: NodePort
+	  ports:
+	    - port: 443
+	      targetPort: 8443
+	      nodePort: 30080
+	  selector:
+	    k8s-app: kubernetes-dashboard
+	EOF
 
 NB: https://medium.com/@munza/local-kubernetes-with-kind-helm-dashboard-41152e4b3b3d
 
