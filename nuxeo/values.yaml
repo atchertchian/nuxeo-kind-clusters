@@ -1,0 +1,215 @@
+nuxeo:
+  enable: true
+  image:
+    repository: docker.packages.nuxeo.com/nuxeo/nuxeo
+    tag: latest
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.4
+      memory: 1Gi
+    limits:
+      cpu: 1
+      memory: 2Gi
+  service:
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+    annotations:
+      fabric8.io/expose: "true"
+      fabric8.io/ingress.annotations: "kubernetes.io/ingress.class: nginx"
+  probePath: /nuxeo/runningstatus
+  livenessProbe:
+    initialDelaySeconds: 100
+    periodSeconds: 20
+    successThreshold: 1
+    failureThreshold: 5
+    timeoutSeconds: 10
+  readinessProbe:
+    periodSeconds: 20
+    initialDelaySeconds: 100
+    successThreshold: 1
+    timeoutSeconds: 10
+    failureThreshold: 5
+  terminationGracePeriodSeconds: 10
+  mongodb:
+    dbname: nuxeo
+    backup:
+      enable: false
+      schedule: "0 0 */3 * *"
+      aws:
+        bucket: "mongo-backup-bucket"
+        secret: "mongo-backup-aws-secret"
+  postgresql:
+    dbname: nuxeo
+    username: nuxeo
+    password: nuxeo
+  elasticsearch:
+    clusterName: elasticsearch
+    indexName: nuxeo
+    indexNumberOfReplicas: 0
+    restClient:
+      socketTimeoutMs: 300000
+      connectionTimeoutMs: 300000
+  ingress:
+    enabled: false
+    annotations:
+      kubernetes.io/ingress.class: nginx
+  persistence:
+    enabled: false
+    storageClass: standard
+    size:
+      binaries: 10Gi
+      log: 10Gi
+    annotations: {}
+  customParams: |-
+    # Custom parameters to be appended to nuxeo.conf
+  ## Custom environment variables to set in the container
+  ## customEnvs allows to define environment variables from a value or a key of a ConfigMap
+  customEnvs:
+  ## customEnvsFrom allows to load the content of a ConfigMap as environment variables
+  customEnvsFrom:
+
+## Values overridden from the MongoDB chart: https://github.com/bitnami/charts/blob/master/bitnami/mongodb/values.yaml
+mongodb:
+  image:
+    tag: "4.2.7"
+  usePassword: false
+  serviceAccount:
+    create: false
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 1
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 2Gi
+
+## Values overridden from the PostgreSQL chart: https://github.com/helm/charts/blob/master/stable/postgresql/values.yaml
+postgresql:
+  image:
+    tag: "11.7.0"
+  initdbScripts:
+    db-init.sql: |
+      CREATE ROLE nuxeo WITH PASSWORD 'nuxeo' LOGIN;
+      CREATE DATABASE nuxeo ENCODING 'UTF8' OWNER nuxeo;
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 1
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 2Gi
+
+## Values overridden from the Elasticsearch chart: https://github.com/helm/charts/blob/master/stable/elasticsearch/values.yaml
+## These are for staging only
+elasticsearch:
+  image:
+    tag: "6.8.6"
+  cluster:
+    env:
+      MINIMUM_MASTER_NODES: "1"
+      EXPECTED_MASTER_NODES: "1"
+      RECOVER_AFTER_MASTER_NODES: "1"
+  serviceAccounts:
+    client:
+      create: false
+      name:
+    master:
+      create: false
+      name:
+    data:
+      create: false
+      name:
+  client:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1024Mi
+  master:
+    updateStrategy:
+      type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+    replicas: 1
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1024Mi
+  data:
+    updateStrategy:
+      type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+    replicas: 1
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1536Mi
+      limits:
+        cpu: 1
+        memory: 2048Mi
+
+## Values overridden from the Kafka chart: https://github.com/helm/charts/blob/master/incubator/kafka/values.yaml
+## These are for staging only, no need for 3 kafka and zoopkeper replicas
+kafka:
+  updateStrategy:
+    type: RollingUpdate # By default set to "OnDelete", the legacy behavior
+  imageTag: "5.4.1"
+  replicas: 1
+  zookeeper:
+    image:
+      tag: "3.6.0"
+    replicaCount: 1
+  persistence:
+    enabled: false
+  prometheus:
+    operator:
+      enabled: false
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+## Values overridden from the Redis chart: https://github.com/helm/charts/blob/master/stable/redis/values.yaml
+## These are for staging only, no need for a cluster
+redis:
+  image:
+    tag: "5.0.7"
+  cluster:
+    enabled: false
+  usePassword: false
+  master:
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 16Mi
+      limits:
+        cpu: 200m
+        memory: 64Mi
+
+## Tags used to control the deployment of the dependency subcharts when this chart is deployed directly.
+## When this chart is deployed as a dependecy of another chart, these dependencies are controlled by setting values
+## such as `nuxeo.mongodb.deploy` or `nuxeo.elasticsearch.deploy` to `true`.
+tags:
+  elasticsearch: false
+  kafka: false
+  mongodb: false
+  postgresql: false
+  redis: false
