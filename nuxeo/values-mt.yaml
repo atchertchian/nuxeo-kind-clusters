@@ -208,12 +208,16 @@ redis:
 ## Tags used to control the deployment of the dependency subcharts when this chart is deployed directly.
 ## When this chart is deployed as a dependecy of another chart, these dependencies are controlled by setting values
 ## such as `nuxeo.mongodb.deploy` or `nuxeo.elasticsearch.deploy` to `true`.
+gcs:
+  project: "gcpProject"
+  bucketname: "somebucket"
 tags:
   elasticsearch: true
   kafka: true
   mongodb: true
   postgresql: false
   redis: false
+  gcs: true
 tenants:
   - tenant1
   - tenant2 

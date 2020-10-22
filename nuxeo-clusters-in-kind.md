@@ -79,6 +79,8 @@ Check that the image in now in the registry:
 	 --set nuxeo.clid='XXX' \
 	  nuxeo
 
+
+
 ## Principles used to deploy multiple nuxeo application
 
 

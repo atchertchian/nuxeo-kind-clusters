@@ -88,6 +88,8 @@ spec:
             mountPath: /var/lib/nuxeo/binaries
           - name: log
             mountPath: /var/log/nuxeo
+          - name: gcpcconfig
+            mountPath: /opt/nuxeo/gcp
       initContainers:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
       - name: init-elasticsearch
@@ -129,6 +131,9 @@ spec:
         {{- else }}
         emptyDir: {}
         {{- end }}
+      - name: gcpcconfig
+        configMap:
+          name: {{ template "nuxeo.fullname" . }}-gcp-config
 {{- end }}
 {{- end }}
 {{- end }}

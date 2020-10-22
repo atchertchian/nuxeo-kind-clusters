@@ -63,7 +63,36 @@ data:
 {{- if .Values.nuxeo.customParams }}
 {{ .Values.nuxeo.customParams | indent 4 }}
 {{- end }}
+{{- if .Values.tags.gcs }}
+    nuxeo.core.binarymanager=org.nuxeo.ecm.core.storage.gcp.GoogleStorageBinaryManager
+    nuxeo.gcp.storage.bucket= {{ .Values.gcs.bucketname }}
+    nuxeo.gcp.storage.bucket_prefix={{ $tenant }}
+    nuxeo.gcp.project={{ .Values.gcs.project }}
+    nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
 {{- end }}
 {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nuxeo.fullname" . }}-gcp-config
+  labels:
+    app: {{ template "nuxeo.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    role: config
+data:
+  gcp-credentials.json: |-
+    {
+      "type": "service_account",
+      "project_id": "",
+      "private_key_id": "",
+      "private_key": "-----BEGIN PRIVATE KEY----------END PRIVATE KEY-----\n",
+      "client_id": "",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth"
+    }
+
 
