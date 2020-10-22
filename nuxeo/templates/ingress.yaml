@@ -15,23 +15,19 @@ metadata:
     {{- range $key, $value := .Values.nuxeo.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   rules:
-  - host: app1.localhost
+{{- range .Values.tenants }}
+{{- $tenant := . -}}
+{{- with $ }}
+  - host: {{ $tenant }}.localhost
     http:
       paths:
       - backend:
-          serviceName: {{ template "nuxeo.fullname" . }}-app1
+          serviceName: {{ template "nuxeo.fullname" . }}-{{ $tenant }}
           servicePort: {{ .Values.nuxeo.service.externalPort}}
-  - host: app2.localhost
-    http:
-      paths:
-      - backend:
-          serviceName: {{ template "nuxeo.fullname" . }}-app2
-          servicePort: {{ .Values.nuxeo.service.externalPort}}
-  - http:
-      paths:
-      - backend:
-          serviceName: {{ template "nuxeo.fullname" . }}
-          servicePort: {{ .Values.nuxeo.service.externalPort}}
+{{- end }}
+{{- end }}
 {{- end }}

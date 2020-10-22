@@ -71,73 +71,65 @@ Check that the image in now in the registry:
     helm dependency update nuxeo
 
 	helm install \
-	 -f nuxeo/values-tiry.yaml \
+	 -f nuxeo/values-mt.yaml \
+	 --dry-run \
 	 --name nuxeo-cluster \
 	 --debug \
 	 --set nuxeo.packages=nuxeo-web-ui \
-	 --set tags.mongodb=true \
-	 --set tags.elasticsearch=true \
-	 --set tags.kafka=true \
-	 --set nuxeo.ingress.enabled=true \
 	 --set nuxeo.clid='XXX' \
 	  nuxeo
 
-
-	helm upgrade \
-	 -f nuxeo/values-tiry.yaml \
-	 nuxeo-cluster \
-	 --debug \
-	 --set nuxeo.packages=nuxeo-web-ui \
-	 --set tags.mongodb=true \
-	 --set tags.elasticsearch=true \
-	 --set tags.kafka=true \
-	 --set nuxeo.ingress.enabled=true \
-	 --set nuxeo.clid='xxx' \
-	  nuxeo
-
-
 ## Principles used to deploy multiple nuxeo application
 
-### First test
 
-For now, I used a viking approach, basicaly copy/pasting the needed resources:
+Several approaches are possible to generate multiple tenant deployments
 
- - duplicated configMap to have 3 different configurations
-    - default configuration
-    	- using `nuxeo` as database name
-    	- using `nuxeo` as index prefix
-    	- using `nuxeo-` as kafka prefix
-    - app1 configuration
-    	- using `app1` as database name
-    	- using `app1` as index prefix
-    	- using `app1-` as kafka prefix
-    - app2 configuration
-    	- using `app2` as database name
-    	- using `app2` as index prefix
-    	- using `app2-` as kafka prefix 
- - duplicated deployment to have 3 deployments
- 	- nuxeo using the default configuration
- 	- nuxeo-app1 using the app1 configuration
- 	- nuxeo-app2 using the app2 configuration
- - duplicated service to have 3 services
- - added routing rule in the ingress
- 	- app1.localhost goes to app1
-    - app2.localhost goes to app2
-    - everything else goes to the default nuxeo
-
-This system is far from ideal:
-
- - lot of duplicated yaml
- - no k8s namespace isolation
- 
-###	Civilized templating
-
-Among the differnt options I would like to investigate:
-
+ - brute force copy/past of yaml + search/replace
+ 	- this was the first test
+ 	- this works but this is ugluy
  - pure helm
- 	- split storare and nuxeo charts
  	- use a loop in Nuxeo helm charts (using `range`)
  - leverage [helmfile](https://github.com/roboll/helmfile)
+
+### Helm loop
+
+The idea is simple:
+
+**Add a list of tenants inside the values.yaml file**
+
+    tenants:
+      - tenant1
+      - tenant2 
+      - tenant3 
+
+**iterate on tenant from inside the helm template**
+
+    {{- range .Values.tenants }}
+
+However, because of how `range` actually change the "context" (see [issue-1311](https://github.com/helm/helm/issues/1311)), we need to store the iteration variable and reset the context.
+
+
+	{{- range .Values.tenants }}
+	{{- $tenant := . -}}
+	{{- with $ }}
+
+	 ... do something using the std helm context and the $tenant varianle
+
+	{{- end }}
+	{{- end }}
+
+
+For each tenant in the list the template will generate
+
+ - one configMap for each tenant
+    	- using `$tenant` as database name
+    	- using `$tenant` as index prefix
+    	- using `$tenant-` as kafka prefix
+ - one deployment for each tenant
+ 	- using the corresponding configuration
+ - one service for each tenant
+ - added routing rule in the ingress
+ 	- `$tenant`.localhost goes to `$tenant` service
 
 ### namespace 
 

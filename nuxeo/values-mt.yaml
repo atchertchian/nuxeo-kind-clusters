@@ -53,7 +53,7 @@ nuxeo:
       socketTimeoutMs: 300000
       connectionTimeoutMs: 300000
   ingress:
-    enabled: false
+    enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
   persistence:
@@ -209,8 +209,12 @@ redis:
 ## When this chart is deployed as a dependecy of another chart, these dependencies are controlled by setting values
 ## such as `nuxeo.mongodb.deploy` or `nuxeo.elasticsearch.deploy` to `true`.
 tags:
-  elasticsearch: false
-  kafka: false
-  mongodb: false
+  elasticsearch: true
+  kafka: true
+  mongodb: true
   postgresql: false
   redis: false
+tenants:
+  - tenant1
+  - tenant2 
+  - tenant3 
