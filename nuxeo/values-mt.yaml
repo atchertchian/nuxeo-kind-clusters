@@ -3,9 +3,10 @@ nuxeo:
   pacckagesSkipped: google-storage amazon-s3-online-storage
   enable: true
   image:
-    repository: nuxeo/nuxeo
+    repository: gcr.io/jx-preprod/nuxeo-tiry
+    #repository: nuxeo/nuxeo
     #repository: docker.packages.nuxeo.com/nuxeo/nuxeo
-    tag: tiry
+    #tag: tiry
   replicaCount: 1
   resources:
     requests:

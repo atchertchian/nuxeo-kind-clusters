@@ -22,7 +22,7 @@ spec:
 {{- range .Values.tenants }}
 {{- $tenant := . -}}
 {{- with $ }}
-  - host: {{ $tenant }}.localhost
+  - host: {{ $tenant }}.nxtest
     http:
       paths:
       - backend:
