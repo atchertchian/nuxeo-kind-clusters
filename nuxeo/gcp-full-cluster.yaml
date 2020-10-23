@@ -1,0 +1,21 @@
+nuxeo:
+  packages: nuxeo-web-ui google-storage 
+  pacckagesSkipped: amazon-s3-online-storage
+  image:
+    repository: gcr.io/jx-preprod/nuxeo-tiry
+  ingress:
+    enabled: true
+gcs:
+  project: "jx-preprod"
+  bucketname: "nuxeo-multitenant-storage-bucket"
+tags:
+  elasticsearch: true
+  kafka: true
+  mongodb: true
+  postgresql: false
+  redis: false
+  gcs: true
+tenants:
+  - tenant1
+  - tenant2 
+  - tenant3 
