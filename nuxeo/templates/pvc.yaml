@@ -8,6 +8,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-binaries
+  namespace: ns-{{ $tenant }}
   labels:
     app: {{ template "nuxeo.fullname" . }}-{{ $tenant }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -35,6 +36,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-log
+  namespace: ns-{{ $tenant }}
   labels:
     app: {{ template "nuxeo.fullname" . }}-{{ $tenant }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"

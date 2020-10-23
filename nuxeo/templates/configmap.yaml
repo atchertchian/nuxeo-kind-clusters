@@ -7,6 +7,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-conf
+  namespace: ns-{{ $tenant }}
   labels:
     app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -21,7 +22,7 @@ data:
     nuxeo.stream.pubsub.log.codec=avro
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
     nuxeo.templates=default,mongodb
-    nuxeo.mongodb.server=mongodb://{{ .Release.Name }}-mongodb:27017
+    nuxeo.mongodb.server=mongodb://{{ .Release.Name }}-mongodb.default.svc.cluster.local:27017
     nuxeo.mongodb.dbname={{ $tenant }}
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
@@ -35,7 +36,7 @@ data:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
     elasticsearch.client=RestClient
     elasticsearch.clusterName={{ .Values.nuxeo.elasticsearch.clusterName }}
-    elasticsearch.addressList=http://{{ .Release.Name }}-elasticsearch-client:9200
+    elasticsearch.addressList=http://{{ .Release.Name }}-elasticsearch-client.default.svc.cluster.local:9200
     elasticsearch.indexName={{ $tenant }}
     elasticsearch.indexNumberOfReplicas={{ .Values.nuxeo.elasticsearch.indexNumberOfReplicas }}
     elasticsearch.restClient.socketTimeoutMs={{ .Values.nuxeo.elasticsearch.restClient.socketTimeoutMs }}
@@ -43,7 +44,7 @@ data:
 {{- end }}
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
     kafka.enabled=true
-    kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless:9092
+    kafka.bootstrap.servers={{ .Release.Name }}-kafka-headless.default.svc.cluster.local:9092
     nuxeo.stream.work.enabled=true
     nuxeo.pubsub.provider=stream
     kafka.topicPrefix={{ $tenant }}-
@@ -70,14 +71,16 @@ data:
     nuxeo.gcp.project={{ .Values.gcs.project }}
     nuxeo.gcp.credentials=/opt/nuxeo/gcp/gcp-credentials.json
 {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+    nuxeo.s3storage.endpoint=http://{{ .Release.Name }}-minio:9000
+    nuxeo.s3storage.bucket=nuxeo-{{ $tenant }}    
+    nuxeo.s3storage.awsid=minio
+    nuxeo.s3storage.awssecret=minio123
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nuxeo.fullname" . }}-gcp-config
+  name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-gcp-config
+  namespace: ns-{{ $tenant }}
   labels:
     app: {{ template "nuxeo.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -94,5 +97,8 @@ data:
       "client_id": "",
       "auth_uri": "https://accounts.google.com/o/oauth2/auth"
     }
+{{- end }}
+{{- end }}
+{{- end }}
 
 

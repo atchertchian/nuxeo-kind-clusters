@@ -1,4 +1,6 @@
 nuxeo:
+  packages: nuxeo-web-ui 
+  pacckagesSkipped: google-storage amazon-s3-online-storage
   enable: true
   image:
     repository: nuxeo/nuxeo
@@ -217,7 +219,7 @@ tags:
   mongodb: true
   postgresql: false
   redis: false
-  gcs: true
+  gcs: false
 tenants:
   - tenant1
   - tenant2 

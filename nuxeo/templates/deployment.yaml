@@ -3,10 +3,18 @@
 {{- $tenant := . -}}
 {{- with $ }}
 ---
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: ns-{{ $tenant }}
+  labels:
+    name: ns-{{ $tenant }}
+---  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}
+  namespace: ns-{{ $tenant }}
   labels:
     draft: {{ default "draft-app" .Values.nuxeo.draft }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
@@ -94,12 +102,12 @@ spec:
 {{- if or .Values.elasticsearch.deploy .Values.tags.elasticsearch }}
       - name: init-elasticsearch
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-elasticsearch-client 9200; do echo "waiting for elastic"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-elasticsearch-client.default.svc.cluster.local 9200; do echo "waiting for elastic"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.mongodb.deploy .Values.tags.mongodb }}
       - name: init-mongodb
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-mongodb 27017; do echo "waiting for mongodb"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-mongodb.default.svc.cluster.local 27017; do echo "waiting for mongodb"; sleep 2; done;']
 {{- end }}
 {{- if or .Values.postgresql.deploy .Values.tags.postgresql }}
       - name: init-postgresql
@@ -109,7 +117,7 @@ spec:
 {{- if or .Values.kafka.deploy .Values.tags.kafka}}
       - name: init-kafka
         image: busybox
-        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-kafka-headless 9092; do echo "waiting for kafka"; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -w1 {{ .Release.Name }}-kafka-headless.default.svc.cluster.local 9092; do echo "waiting for kafka"; sleep 2; done;']
 {{- end }}
       securityContext:
         fsGroup: 1000
@@ -133,7 +141,7 @@ spec:
         {{- end }}
       - name: gcpcconfig
         configMap:
-          name: {{ template "nuxeo.fullname" . }}-gcp-config
+          name: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-gcp-config
 {{- end }}
 {{- end }}
 {{- end }}

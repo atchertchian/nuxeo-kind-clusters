@@ -15,7 +15,7 @@ metadata:
     {{- range $key, $value := .Values.nuxeo.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
-      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.iongress.kubernetes.io/affinity: cookie
       nginx.ingress.kubernetes.io/affinity-mode: persistent
 spec:
   rules:
@@ -26,7 +26,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{ template "nuxeo.fullname" . }}-{{ $tenant }}
+          serviceName: {{ template "nuxeo.fullname" . }}-{{ $tenant }}-px
           servicePort: {{ .Values.nuxeo.service.externalPort}}
 {{- end }}
 {{- end }}

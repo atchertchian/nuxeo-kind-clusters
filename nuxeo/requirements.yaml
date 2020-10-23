@@ -34,3 +34,12 @@ dependencies:
     condition: nuxeo.redis.deploy
     tags:
       - redis
+  - name: minio
+    version: ~5.0.32
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    alias: minio
+    tags:
+      - minio
+
+
+  
