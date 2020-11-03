@@ -81,12 +81,12 @@ Check that the image in now in the registry:
 
 
 
-## Principles used to deploy multiple nuxeo application
+## Principles used to deploy multiple Nuxeo applications
 
 
-Several approaches are possible to generate multiple tenant deployments
+Several approaches are possible to generate multiple tenant deployments:
 
- - brute force copy/past of yaml + search/replace
+ - brute force copy/paste of yaml + search/replace
  	- this was the first test
  	- this works but this is ugluy
  - pure helm
@@ -104,7 +104,7 @@ The idea is simple:
       - tenant2 
       - tenant3 
 
-**iterate on tenant from inside the helm template**
+**Iterate on tenant from inside the helm template**
 
     {{- range .Values.tenants }}
 
@@ -121,7 +121,7 @@ However, because of how `range` actually change the "context" (see [issue-1311](
 	{{- end }}
 
 
-For each tenant in the list the template will generate
+For each tenant in the list the template will generate:
 
  - one configMap for each tenant
     	- using `$tenant` as database name
