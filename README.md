@@ -5,7 +5,7 @@ The actual readme is [nuxeo-clusters-in-kind.md](nuxeo-clusters-in-kind.md)
 
 # Nuxeo Helm Chart
 
-This chart aims to deploy the Nuxeo Platform in a development or staging environment, such as preview in Kubernetes.
+This chart aims at deploying the Nuxeo Platform in a development or staging environment, such as preview in Kubernetes.
 
 > WARNING
 The `nuxeo` chart is not production-ready by default.
@@ -15,7 +15,7 @@ By default, this chart deploys the strict minimum to have Nuxeo running:
 - Single Nuxeo node.
 - No persistence for binaries.
 - H2 database.
-- Elasticsearch embebedded.
+- Elasticsearch embedded.
 - Chronicle Queue for the WorkManager and Nuxeo Streams.
 
 The [values-production](./nuxeo/values-production.yaml) file provides a sample "production-like" configuration to guide people wanting to use this chart to make a "real" deployment of Nuxeo in Kubernetes, relying on:
